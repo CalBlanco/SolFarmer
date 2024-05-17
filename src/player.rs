@@ -1,11 +1,14 @@
 use bevy::prelude::*;
 
-use crate::map;
+use crate::{game, map};
 
 use super::{RESOLUTION_X, RESOLUTION_Y};
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Component)]
+pub struct Mouse;
 
 const SPAWN_X: i32 = 20;
 const SPAWN_Y: i32 = 20;
@@ -23,6 +26,17 @@ pub fn setup(mut commands: Commands, assets: Res<AssetServer>){
         },
         Player
     ));
+
+    commands.spawn( (
+        SpriteBundle {
+            texture: assets.load("tiles/highlight.png"),
+            transform: Transform::from_xyz(0., 0., 1.),
+            ..default()
+        },
+        Mouse
+    ));
+
+
 }
 
 /// Move the player around 
@@ -50,4 +64,18 @@ pub fn player_movement(
         }
 
     } 
+}
+
+pub fn render_tile_highlight(
+    mouse: Res<game::MyWorldCoords>,
+    mut tile_highlight: Query<(&mut Transform), With<Mouse>>
+)
+{
+    if let Ok(mut transform) = tile_highlight.get_single_mut() {
+        let (x, y) = map::get_tile(mouse.0.x, mouse.0.y);
+        let (x, y) = map::get_world(x, y);
+
+        transform.translation.x = x;
+        transform.translation.y = y;
+    }
 }

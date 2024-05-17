@@ -7,7 +7,7 @@ use super::{AppState, RESOLUTION_X, RESOLUTION_Y};
 
 /// We will store the world position of the mouse cursor here.
 #[derive(Resource, Default)]
-struct MyWorldCoords(Vec2);
+pub struct MyWorldCoords(pub Vec2);
 
 /// Used to help identify our main camera
 #[derive(Component)]
@@ -22,12 +22,17 @@ pub fn build_plugin(app: &mut App){
         player::setup,
     ))
     .init_resource::<MyWorldCoords>()
+
     .add_systems(Update, (
         my_cursor_system
     ).run_if(in_state(AppState::Game)))
+
     .add_systems(FixedUpdate, (
-        player::player_movement
+        player::player_movement,
+        player::render_tile_highlight,
+
     ).run_if(in_state(AppState::Game)))
+    
     .add_systems(OnExit(AppState::Game), cleanup);
 }
 

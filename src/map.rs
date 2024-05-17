@@ -80,8 +80,11 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
 }
 
 
+
 pub fn get_tile(x:f32, y:f32) -> (i32, i32) {
-    ((x / 32.).floor() as i32, (y/ 32.).floor() as i32)
+    let x = x + 16.;
+    let y = y + 16.;
+    ((x / 32.) as i32, (y/ 32.) as i32)
 }
 
 pub fn get_world(x:i32, y:i32) -> (f32, f32) {
