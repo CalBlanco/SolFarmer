@@ -2,10 +2,11 @@ use bevy::{diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, prelu
 use bevy_hanabi::prelude::*;
 
 const RESOLUTION_X: f32 = 1280.;
-const RESOLUTION_Y: f32 = 720.;
+const RESOLUTION_Y: f32 = 704.;
 
 mod menu;
 mod game;
+mod map;
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum AppState {
@@ -38,8 +39,8 @@ fn main() {
                 }),
                 ..default()
             }),
-            LogDiagnosticsPlugin::default(),
-            FrameTimeDiagnosticsPlugin,
+            //LogDiagnosticsPlugin::default(),
+            //FrameTimeDiagnosticsPlugin,
         ))
         .add_plugins(HanabiPlugin) // Particle Effect System
         .add_plugins(menu::build_plugin)
