@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use super::{RESOLUTION_X, RESOLUTION_Y};
 
+
 // Returns true if point_a and point_b are within a range of dist
 fn within_circle (point_a: (i32, i32), point_b: (i32, i32), dist: f32) -> bool {
     let (a_x, a_y) = point_a;
@@ -76,4 +77,13 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
             }
         }
     }
+}
+
+
+pub fn get_tile(x:f32, y:f32) -> (i32, i32) {
+    ((x / 32.).floor() as i32, (y/ 32.).floor() as i32)
+}
+
+pub fn get_world(x:i32, y:i32) -> (f32, f32) {
+   ( (x * 32 ) as f32, (y*32) as f32)
 }
