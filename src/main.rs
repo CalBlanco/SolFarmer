@@ -7,6 +7,7 @@ const RESOLUTION_Y: f32 = 704.;
 mod menu;
 mod game;
 mod map;
+mod player;
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum AppState {
