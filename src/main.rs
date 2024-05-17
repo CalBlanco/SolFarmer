@@ -4,6 +4,15 @@ use bevy_hanabi::prelude::*;
 const RESOLUTION_X: f32 = 1280.;
 const RESOLUTION_Y: f32 = 720.;
 
+mod menu;
+mod game;
+
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+enum AppState {
+    #[default]
+    Menu,
+    Game,
+}
 
 fn main() {
     App::new()
@@ -32,6 +41,10 @@ fn main() {
             LogDiagnosticsPlugin::default(),
             FrameTimeDiagnosticsPlugin,
         ))
-        .add_plugins(HanabiPlugin)
+        .add_plugins(HanabiPlugin) // Particle Effect System
+        .add_plugins(menu::build_plugin)
+        .add_plugins(game::build_plugin)
+        .init_state::<AppState>()
         .run();
 }
+
