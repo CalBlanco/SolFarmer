@@ -108,6 +108,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 height: Val::Percent(100.0),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
+                flex_direction: FlexDirection::Column, // Set flex direction to Column
                 ..default()
             },
             ..default()
@@ -123,6 +124,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         justify_content: JustifyContent::Center,
                         // vertically center child text
                         align_items: AlignItems::Center,
+                        margin: UiRect::bottom(Val::Px(20.0)), // Add bottom margin for spacing
                         ..default()
                     },
                     border_color: BorderColor(Color::BLACK),
@@ -151,6 +153,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         justify_content: JustifyContent::Center,
                         // vertically center child text
                         align_items: AlignItems::Center,
+                        margin: UiRect::bottom(Val::Px(20.0)), // Add bottom margin for spacing
                         ..default()
                     },
                     border_color: BorderColor(Color::BLACK),
