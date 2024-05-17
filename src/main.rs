@@ -28,9 +28,10 @@ fn main() {
                     prevent_default_event_handling: false,
                     window_theme: Some(WindowTheme::Dark),
                     enabled_buttons: bevy::window::EnabledButtons {
-                        maximize: true,
+                        maximize: false,
                         ..Default::default()
                     },
+                    resize_constraints: WindowResizeConstraints { min_width: RESOLUTION_X, min_height: RESOLUTION_Y, max_width: RESOLUTION_X, max_height: RESOLUTION_Y },
                     // This will spawn an invisible window
                     // The window will be made visible in the make_visible() system after 3 frames.
                     // This is useful when you want to avoid the white window that shows up before the GPU is ready to render the app.
