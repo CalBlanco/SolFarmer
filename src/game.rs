@@ -1,6 +1,7 @@
 use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, prelude::*};
 
-use super::AppState;
+
+use super::{AppState, RESOLUTION_X, RESOLUTION_Y};
 
 pub fn build_plugin(app: &mut App){
     app
@@ -17,6 +18,7 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
                 ..default()
             },
             tonemapping: Tonemapping::TonyMcMapface,
+            transform: Transform::from_xyz((RESOLUTION_X / 2.) - 16.0, (RESOLUTION_Y / 2.) - 16.0 , 0.),
             ..default()
         },
         BloomSettings{
@@ -25,14 +27,9 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         },
     ));
 
+    crate::map::draw_background(commands, assets);
 
-    commands.spawn(
-        SpriteBundle {
-            texture: assets.load("tiles/redgrass.png"),
-            transform: Transform::from_xyz(0.,0., 0.),
-            ..default()
-        }
-    );
+    
 }
 
 
