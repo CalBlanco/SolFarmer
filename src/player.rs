@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game, map::{self, TileBundle, TileState}};
+use crate::{game, map::{self, TileBundle, TileState}, spriteanims};
 
 #[derive(Component)]
 pub struct Player;
@@ -24,11 +24,8 @@ pub fn setup(mut commands: Commands, assets: Res<AssetServer>){
     let spawn = map::get_world(SPAWN_X, SPAWN_Y);
 
     commands.spawn( (
-        SpriteBundle {
-            texture: assets.load("entity/ed.png"),
-            transform: Transform::from_xyz(spawn.0, spawn.1, 2.),
-            ..default()
-        },
+        spriteanims::HumanAnimator::new(
+            assets.load("entity/human_profile/ed_sheet.png"), spriteanims::HumanAnimState::FaceDown, Vec3 {x: spawn.0, y: spawn.1, z :1.0}),
         Player,
         PlayerAttack(Timer::from_seconds(ATTACK_COOLDOWN, TimerMode::Once))
     )).with_children(|parent| {
@@ -53,28 +50,33 @@ pub fn setup(mut commands: Commands, assets: Res<AssetServer>){
 
 /// Move the player around 
 pub fn player_input(
-    mut query: Query<(Entity, &mut Transform, &mut PlayerAttack), With<Player>>,
+    mut query: Query<(Entity, &mut Transform, &mut PlayerAttack, &mut Sprite, &mut spriteanims::HumanAnimState), With<Player>>,
     keycode: Res<ButtonInput<KeyCode>>,
     mouse: Res<game::MyWorldCoords>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     time: Res<Time>
 )
 {
-    if let Ok((_e, mut transform, mut player_attack)) = query.get_single_mut() {
+    if let Ok((_e, mut transform, mut player_attack, mut sprite, mut state )) = query.get_single_mut() {
         // Tick the attack timer
         player_attack.0.tick(time.delta());
         let move_distance = MOVE_SPEED * time.delta_seconds();
 
         if keycode.pressed(KeyCode::KeyW) {
+            sprite.rect = Some(spriteanims::HumanAnimState::FaceUp.getRect());
+            
             transform.translation.y += move_distance;
         }
         if keycode.pressed(KeyCode::KeyS) {
+            sprite.rect = Some(spriteanims::HumanAnimState::FaceDown.getRect());
             transform.translation.y -= move_distance;
         }
         if keycode.pressed(KeyCode::KeyD) {
+            sprite.rect = Some(spriteanims::HumanAnimState::FaceRight.getRect());
             transform.translation.x += move_distance;
         }
         if keycode.pressed(KeyCode::KeyA) {
+            sprite.rect = Some(spriteanims::HumanAnimState::FaceLeft.getRect());
             transform.translation.x -= move_distance;
         }
 
