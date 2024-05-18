@@ -91,6 +91,20 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     TileState::Immutable
                 ));
             } 
+            // Place Torches on Concrete tiles
+            else if (x == 7 || x == 32) && (y == 6 || y == 15) {
+                commands.spawn(TileBundle::new(
+                    assets.load("tiles/concrete.png"),
+                    x,
+                    y,
+                    TileState::Immutable
+                ));
+                commands.spawn( SpriteBundle {
+                    texture: assets.load("images/torch.png"),
+                    transform: Transform::from_xyz(x as f32 * 32.0, y as f32 * 32.0, 1.),
+                    ..default()
+                });
+            } 
             // Draw the basic ground behind everything
             else {
                 commands.spawn(TileBundle::new(
@@ -100,6 +114,8 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     TileState::Untoiled
                 )); 
             }
+
+            
 
             // Add the tile to mapArray
             

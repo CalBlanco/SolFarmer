@@ -1,4 +1,4 @@
-use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, prelude::*, window::PrimaryWindow};
+use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
 
 use crate::{map, player};
 
@@ -22,6 +22,12 @@ pub fn build_plugin(app: &mut App){
         player::setup,
     ))
     .init_resource::<MyWorldCoords>()
+
+    .insert_resource(DayNightCycle::new(DAY_DURATION))
+    .add_systems(Update, (
+        update_day_night_cycle
+    ).run_if(in_state(AppState::Game)))
+    
 
     .add_systems(Update, (
         my_cursor_system
@@ -98,3 +104,49 @@ fn my_cursor_system(
         // eprintln!("World coords: {}/{}  - Tile: {}/{}", world_position.x, world_position.y, tile_cords.0, tile_cords.1);
     }
 }
+
+// Constants for day duration (in seconds)
+const DAY_DURATION: f32 = 20.0;
+
+// Resource to hold the day-night cycle timer
+#[derive(Resource)]
+struct DayNightCycle {
+    timer: Timer,
+}
+
+impl DayNightCycle {
+    fn new(day_duration: f32) -> Self {
+        DayNightCycle {
+            timer: Timer::from_seconds(day_duration, TimerMode::Repeating),
+        }
+    }
+}
+
+fn update_day_night_cycle(
+    time: Res<Time>,
+    mut day_night_cycle: ResMut<DayNightCycle>,
+) {
+    day_night_cycle.timer.tick(time.delta());
+
+    // Calculate the current time of day as a percentage (0.0 - 1.0)
+    let time_of_day = day_night_cycle.timer.elapsed_secs() / DAY_DURATION;
+
+
+    // Dawn
+    if time_of_day <= 0.1 {
+        
+    }
+    // Day
+    else if time_of_day <= 0.35 {
+        
+    }
+    // Dusk
+    else if time_of_day <= 0.45 {
+        
+    }
+    // Night
+    else {
+        
+    }
+}
+
