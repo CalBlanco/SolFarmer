@@ -21,7 +21,7 @@ const ATTACK_COOLDOWN: f32 = 0.4;
 #[derive(Component)]
 pub struct Hoe;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub enum PlayerTool {
     Tiller,
     Planter,
@@ -190,20 +190,93 @@ pub fn hoe_swing(
     }
 }
 
+
+#[derive(Event)]
+pub struct ClickEvent((i32, i32), PlayerTool);
+
 /// Control tile placement
 pub fn mouse_tile_select(
-    tile_query: Query<(Entity, &mut map::TileState, &map::Position, &mut Sprite)>,
     player_query: Query<&PlayerTool, With<Player>>,
     mouse: Res<game::MyWorldCoords>,
     mouse_input: Res<ButtonInput<MouseButton>>,
-    assets: Res<AssetServer>,
-    mut commands: Commands
+    mut click_event: EventWriter<ClickEvent>,
 ){
     let Ok((tool)) = player_query.get_single() else {warn!("No tool"); return;};
     if mouse_input.just_pressed(MouseButton::Left) {
        // println!("Clicked Something {}", tile_query.iter().len());
         let mouse_tile = map::get_tile(mouse.0.x, mouse.0.y);
-        for (e, s, p, _) in &tile_query{
+        click_event.send(ClickEvent((mouse_tile.0, mouse_tile.1), tool.clone()));
+    }
+    
+}
+
+pub fn react_to_mouse_event(
+    mut ev_levelup: EventReader<ClickEvent>,
+    tile_query: Query<(Entity, &mut map::TileState, &map::Position, &mut Sprite)>,
+    assets: Res<AssetServer>,
+    mut commands: Commands,
+){
+    {
+        for ev in ev_levelup.read() {
+            for (e, s, p, _) in &tile_query{
+                let tile_tile = map::get_tile(p.0.x, p.0.y);
+                
+                if ev.0 == tile_tile {
+                   // println!("Clicked Tile: ({},{}) has tile state: {}", mouse_tile.0, mouse_tile.1, s.value());
+                    match ev.1 {
+                        PlayerTool::Planter => {
+                            match *s {
+                                map::TileState::Toiled => {
+                                    commands.entity(e).despawn();
+                                    let rng = rand::thread_rng().gen_range(0..3);
+                                    let str = match rng {
+                                        0 => String::from("tiles/farmtile_seeds_green.png"),
+                                        1 => String::from("tiles/farmtile_seeds_pink.png"),
+                                        _ => String::from("tiles/farmtile_seeds_yellow.png"),
+                                    };
+                                    commands.spawn(
+                                        map::TileBundle::new(assets.load(str), tile_tile.0, tile_tile.1, map::TileState::Planted)
+                                    );
+                                },
+                                _ => {}
+                            }
+                        },
+                        PlayerTool::Tiller => {
+                            match *s {
+                                map::TileState::Untoiled => {
+                                    commands.entity(e).despawn();
+                                    
+                                    commands.spawn(
+                                        map::TileBundle::new(assets.load("tiles/farmtile.png"), tile_tile.0, tile_tile.1, map::TileState::Toiled)
+                                    );
+                                },
+                                _ => {}
+                            }
+                        },
+                        PlayerTool::Rake => {
+                            match *s {
+                                map::TileState::Immutable => {
+                                    
+                                },
+                                _ => {
+                                    commands.entity(e).despawn();
+                                    
+                                    commands.spawn(
+                                        map::TileBundle::new(assets.load("tiles/redgrass.png"), tile_tile.0, tile_tile.1, map::TileState::Untoiled)
+                                    );
+                                }
+                            }
+                        },
+                    }
+                    
+                }
+            }
+        }
+    }
+}
+
+/*
+for (e, s, p, _) in &tile_query{
             let tile_tile = map::get_tile(p.0.x, p.0.y);
             
             if mouse_tile == tile_tile {
@@ -256,6 +329,4 @@ pub fn mouse_tile_select(
                 
             }
         }
-    }
-    
-}
+*/

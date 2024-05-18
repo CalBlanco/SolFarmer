@@ -17,6 +17,7 @@ struct MainCamera;
 
 pub fn build_plugin(app: &mut App){
     app
+    .add_event::<player::ClickEvent>()
     .add_systems(OnEnter(AppState::Game), (
         setup,
         player::setup,
@@ -38,6 +39,7 @@ pub fn build_plugin(app: &mut App){
         player::render_tile_highlight,
         player::hoe_swing,
         player::mouse_tile_select,
+        player::react_to_mouse_event
 
     ).run_if(in_state(AppState::Game)))
     
