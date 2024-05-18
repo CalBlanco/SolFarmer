@@ -8,6 +8,7 @@ mod menu;
 mod game;
 mod map;
 mod player;
+mod the_core;
 
 mod spriteanims;
 

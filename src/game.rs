@@ -1,6 +1,6 @@
 use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
 use bevy::render::*;
-use crate::{map::{self, Position}, player};
+use crate::{map::{self, Position}, player, the_core};
 
 use super::{AppState, RESOLUTION_X, RESOLUTION_Y};
 
@@ -21,6 +21,7 @@ pub fn build_plugin(app: &mut App){
     .add_systems(OnEnter(AppState::Game), (
         setup,
         player::setup,
+        the_core::setup,
     ))
     .init_resource::<MyWorldCoords>()
 
@@ -39,7 +40,8 @@ pub fn build_plugin(app: &mut App){
         player::render_tile_highlight,
         player::hoe_swing,
         player::mouse_tile_select,
-        player::react_to_mouse_event
+        player::react_to_mouse_event,
+        the_core::core_update
 
     ).run_if(in_state(AppState::Game)))
     
