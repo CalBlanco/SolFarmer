@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{asset, prelude::*};
 
 use super::{RESOLUTION_X, RESOLUTION_Y};
 
@@ -77,7 +77,6 @@ fn within_rect(bottom_left: (i32, i32), top_right: (i32, i32), point: (i32, i32)
 
 pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
     let num_x = (RESOLUTION_X / 32.) as i32;
-    println!("{}", num_x);
     let num_y = (RESOLUTION_Y / 32.) as i32;
 
     let middle_tile = (num_x / 2, num_y / 2);
@@ -108,7 +107,7 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                 ));
             }
             // Draw the "house" at the bottom of the map
-            else if within_rect((6, 0), (34, 3), (x, y)) {
+            else if within_rect((6, 0), (34, 3), (x, y)) || within_rect((9, 4), (31, 4), (x, y)) {
                 commands.spawn(TileBundle::new(
                     assets.load("tiles/concrete.png"),
                     x,
@@ -125,7 +124,7 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     TileState::Immutable
                 ));
                 commands.spawn( SpriteBundle {
-                    texture: assets.load("images/torch.png"),
+                    texture: assets.load("tiles/torch.png"),
                     transform: Transform::from_xyz(x as f32 * 32.0, y as f32 * 32.0, 1.),
                     ..default()
                 });
@@ -203,7 +202,8 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x + 1.) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
     commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x + 2.) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
 
-
+    // Draw the core background
+    commands.spawn((make_sprite_bundle("images/core_background.png".to_owned(), &assets, (num_x / 2) as f32 * 32., 2. * 32., 1., 0.), Position(Vec2::new(-10., -10.))));
 }
 
 
