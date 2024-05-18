@@ -125,7 +125,7 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     TileState::Immutable
                 ));
                 commands.spawn( SpriteBundle {
-                    texture: assets.load("images/torch.png"),
+                    texture: assets.load("tiles/torch.png"),
                     transform: Transform::from_xyz(x as f32 * 32.0, y as f32 * 32.0, 1.),
                     ..default()
                 });
