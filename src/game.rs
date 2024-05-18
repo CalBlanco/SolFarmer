@@ -1,6 +1,6 @@
-use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, prelude::*, window::PrimaryWindow};
-
-use crate::{map, player};
+use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
+use bevy::render::*;
+use crate::{map::{self, Position}, player};
 
 use super::{AppState, RESOLUTION_X, RESOLUTION_Y};
 
@@ -22,6 +22,12 @@ pub fn build_plugin(app: &mut App){
         player::setup,
     ))
     .init_resource::<MyWorldCoords>()
+
+    .insert_resource(DayNightCycle::new(DAY_DURATION))
+    .add_systems(Update, (
+        update_day_night_cycle
+    ).run_if(in_state(AppState::Game)))
+    
 
     .add_systems(Update, (
         my_cursor_system
@@ -57,8 +63,6 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     ));
 
     crate::map::draw_background(commands, assets);
-
-    
 }
 
 
@@ -98,3 +102,89 @@ fn my_cursor_system(
         // eprintln!("World coords: {}/{}  - Tile: {}/{}", world_position.x, world_position.y, tile_cords.0, tile_cords.1);
     }
 }
+
+// Constants for day duration (in seconds)
+const DAY_DURATION: f32 = 20.0;
+const DAY_LIGHT_LEVEL: f32 = 1.5;
+const NIGHT_LIGHT_LEVEL: f32 = 0.6;
+
+// Resource to hold the day-night cycle timer
+#[derive(Resource)]
+struct DayNightCycle {
+    timer: Timer,
+}
+
+impl DayNightCycle {
+    fn new(day_duration: f32) -> Self {
+        DayNightCycle {
+            timer: Timer::from_seconds(day_duration, TimerMode::Repeating),
+        }
+    }
+}
+
+fn update_day_night_cycle(
+    time: Res<Time>,
+    mut day_night_cycle: ResMut<DayNightCycle>,
+    mut query: Query<(&mut Sprite, &Position)>,
+) {
+    day_night_cycle.timer.tick(time.delta());
+
+    // Calculate the current time of day as a percentage (0.0 - 1.0)
+    let time_of_day = day_night_cycle.timer.elapsed_secs() / DAY_DURATION;
+
+    // Calculate the sun brightness
+    let global_brightness_factor = match time_of_day {
+        t if t <= 0.1 => lerp(NIGHT_LIGHT_LEVEL, DAY_LIGHT_LEVEL, t / 0.1), // Dawn
+        t if t <= 0.35 => DAY_LIGHT_LEVEL, // Day
+        t if t <= 0.45 => lerp(DAY_LIGHT_LEVEL, NIGHT_LIGHT_LEVEL, (t - 0.35) / 0.1), // Dusk
+        _ => NIGHT_LIGHT_LEVEL, // Night
+    };
+
+    let torch_multiplier = match time_of_day {
+        t if t <= 0.1 => lerp(1., 0., t / 0.1), // Dawn
+        t if t <= 0.35 => 0., // Day
+        t if t <= 0.45 => lerp(0., 1., (t - 0.35) / 0.1), // Dusk
+        _ => 1., // Night
+    };
+
+    // Calculate the brightness factor for this tile
+    
+    for (mut sprite, pos) in query.iter_mut() {
+        // Deconstruct the position vector
+        let Vec2 { x, y } = pos.0;
+
+        let (x, y) = map::get_tile(x, y);
+
+        let numbers = vec![
+            map::distance_int_from_point((7, 6), (x, y)).floor() as i32,
+            map::distance_int_from_point((7, 15), (x, y)).floor() as i32,
+            map::distance_int_from_point((32, 6), (x, y)).floor() as i32,
+            map::distance_int_from_point((32, 15), (x, y)).floor() as i32,
+        ];
+
+        let mut torch_light_factor = 1.;
+
+        if let Some(min_value) = numbers.iter().cloned().min() {
+            if min_value < 7 {
+                let dist = 7 - min_value;
+                torch_light_factor = 1. + (dist as f32 * (0.1) * torch_multiplier);
+            }
+        } else {
+            println!("Vector is empty");
+        }
+        
+        // Calculate total brightness factor (constain torch lights to 7 units away)
+        let brightness_factor = global_brightness_factor * torch_light_factor;
+        // your color changing logic here instead:
+        sprite.color = Color::rgba(
+            1.0 * brightness_factor,
+            1.0 * brightness_factor,
+            1.0 * brightness_factor,
+            1.0, // Preserve the alpha channel
+        );
+    }
+}
+
+fn lerp (a: f32, b: f32, ratio: f32) -> f32 {
+    a + ((b - a) * ratio)
+} 

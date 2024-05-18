@@ -149,4 +149,3 @@ pub fn hoe_swing(
         }
     }
 }
-
