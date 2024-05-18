@@ -139,21 +139,71 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     TileState::Untoiled
                 )); 
             }
-
-            // Draw the Base
-            commands.spawn( SpriteBundle {
-                texture: assets.load("images/basev1.png"),
-                transform: Transform::from_xyz(13. * 32.0, 1. * 32.0, 5.).with_scale(Vec3::new(4., 4., 4.)),
-                ..default()
-            });
-
-            commands.spawn( SpriteBundle {
-                texture: assets.load("images/basev1.png"),
-                transform: Transform::from_xyz(27. * 32.0, 1. * 32.0, 5.).with_scale(Vec3::new(4., 4., 4.)),
-                ..default()
-            });
         }
     }
+
+    // Save the base centers
+    let (base_1_x, base_1_y) = (13., 1.);
+    let (base_2_x, base_2_y) = (27., 1.);
+    // Draw Base 1
+    // Top Left Corner
+    commands.spawn((make_sprite_bundle("tiles/base_corner.png".to_owned(), &assets, (base_1_x - 3.) * 32.0, (base_1_y + 1.) * 32.0, 5., 90.), Position(Vec2::new(-10., -10.))));
+    // Top Right Corner
+    commands.spawn((make_sprite_bundle("tiles/base_corner.png".to_owned(), &assets, (base_1_x + 3.) * 32.0, (base_1_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    // Left Wall
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x - 3.) * 32.0, (base_1_y) * 32.0, 5., 90.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x - 3.) * 32.0, (base_1_y - 1.) * 32.0, 5., 90.), Position(Vec2::new(-10., -10.))));
+    // Top Wall
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x - 2.) * 32.0, (base_1_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x - 1.) * 32.0, (base_1_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x) * 32.0, (base_1_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x + 1.) * 32.0, (base_1_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x + 2.) * 32.0, (base_1_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    // Right Wall
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x + 3.) * 32.0, (base_1_y) * 32.0, 5., -90.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_1_x + 3.) * 32.0, (base_1_y - 1.) * 32.0, 5., -90.), Position(Vec2::new(-10., -10.))));
+    // Draw Roof
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x - 2.) * 32.0, (base_1_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x - 1.) * 32.0, (base_1_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x) * 32.0, (base_1_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x + 1.) * 32.0, (base_1_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x + 2.) * 32.0, (base_1_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x - 2.) * 32.0, (base_1_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x - 1.) * 32.0, (base_1_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x) * 32.0, (base_1_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x + 1.) * 32.0, (base_1_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_1_x + 2.) * 32.0, (base_1_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+
+    // Draw Base 2
+    // Top Left Corner
+    commands.spawn((make_sprite_bundle("tiles/base_corner.png".to_owned(), &assets, (base_2_x - 3.) * 32.0, (base_2_y + 1.) * 32.0, 5., 90.), Position(Vec2::new(-10., -10.))));
+    // Top Right Corner
+    commands.spawn((make_sprite_bundle("tiles/base_corner.png".to_owned(), &assets, (base_2_x + 3.) * 32.0, (base_2_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    // Left Wall
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x - 3.) * 32.0, (base_2_y) * 32.0, 5., 90.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x - 3.) * 32.0, (base_2_y - 1.) * 32.0, 5., 90.), Position(Vec2::new(-10., -10.))));
+    // Top Wall
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x - 2.) * 32.0, (base_2_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x - 1.) * 32.0, (base_2_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x) * 32.0, (base_2_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x + 1.) * 32.0, (base_2_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x + 2.) * 32.0, (base_2_y + 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    // Right Wall
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x + 3.) * 32.0, (base_2_y) * 32.0, 5., -90.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_wall.png".to_owned(), &assets, (base_2_x + 3.) * 32.0, (base_2_y - 1.) * 32.0, 5., -90.), Position(Vec2::new(-10., -10.))));
+    // Draw Roof
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x - 2.) * 32.0, (base_2_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x - 1.) * 32.0, (base_2_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x) * 32.0, (base_2_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x + 1.) * 32.0, (base_2_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x + 2.) * 32.0, (base_2_y) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x - 2.) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x - 1.) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x + 1.) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+    commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x + 2.) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
+
+
 }
 
 
@@ -165,4 +215,16 @@ pub fn get_tile(x:f32, y:f32) -> (i32, i32) {
 
 pub fn get_world(x:i32, y:i32) -> (f32, f32) {
    ( (x * 32 ) as f32, (y*32) as f32)
+}
+
+fn make_sprite_bundle (path: String, assets: &Res<AssetServer>, x:f32, y:f32, z: f32, angle: f32) -> SpriteBundle {
+    // Make the transform and rotate it
+    let mut trans = Transform::from_xyz(x, y, 5.);
+    trans.rotate_local_z(angle.to_radians());
+    // Return the sprite bundle
+    SpriteBundle {
+        texture: assets.load(path),
+        transform: trans,
+        ..default()
+    }
 }
