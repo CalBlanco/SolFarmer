@@ -37,6 +37,7 @@ pub fn build_plugin(app: &mut App){
         player::player_input,
         player::render_tile_highlight,
         player::hoe_swing,
+        player::mouse_tile_select,
 
     ).run_if(in_state(AppState::Game)))
     
