@@ -1,6 +1,6 @@
 use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
 use bevy::render::*;
-use crate::{map, player};
+use crate::{map::{self, Position}, player};
 
 use super::{AppState, RESOLUTION_X, RESOLUTION_Y};
 
@@ -63,8 +63,6 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     ));
 
     crate::map::draw_background(commands, assets);
-
-    
 }
 
 
@@ -127,7 +125,7 @@ impl DayNightCycle {
 fn update_day_night_cycle(
     time: Res<Time>,
     mut day_night_cycle: ResMut<DayNightCycle>,
-    mut query: Query<&mut Sprite>,
+    mut query: Query<(&mut Sprite, &Position)>,
 ) {
     day_night_cycle.timer.tick(time.delta());
 
@@ -142,10 +140,41 @@ fn update_day_night_cycle(
         _ => NIGHT_LIGHT_LEVEL, // Night
     };
 
-    // Calculate the brightness factor for this tile
-    let brightness_factor = global_brightness_factor * 1.0;
+    let torch_multiplier = match time_of_day {
+        t if t <= 0.1 => lerp(1., 0., t / 0.1), // Dawn
+        t if t <= 0.35 => 0., // Day
+        t if t <= 0.45 => lerp(0., 1., (t - 0.35) / 0.1), // Dusk
+        _ => 1., // Night
+    };
 
-    for mut sprite in query.iter_mut() {
+    // Calculate the brightness factor for this tile
+    
+    for (mut sprite, pos) in query.iter_mut() {
+        // Deconstruct the position vector
+        let Vec2 { x, y } = pos.0;
+
+        let (x, y) = map::get_tile(x, y);
+
+        let numbers = vec![
+            map::distance_int_from_point((7, 6), (x, y)).floor() as i32,
+            map::distance_int_from_point((7, 15), (x, y)).floor() as i32,
+            map::distance_int_from_point((32, 6), (x, y)).floor() as i32,
+            map::distance_int_from_point((32, 15), (x, y)).floor() as i32,
+        ];
+
+        let mut torch_light_factor = 1.;
+
+        if let Some(min_value) = numbers.iter().cloned().min() {
+            if min_value < 7 {
+                let dist = 7 - min_value;
+                torch_light_factor = 1. + (dist as f32 * (0.1) * torch_multiplier);
+            }
+        } else {
+            println!("Vector is empty");
+        }
+        
+        // Calculate total brightness factor (constain torch lights to 7 units away)
+        let brightness_factor = global_brightness_factor * torch_light_factor;
         // your color changing logic here instead:
         sprite.color = Color::rgba(
             1.0 * brightness_factor,

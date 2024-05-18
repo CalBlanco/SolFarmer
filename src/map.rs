@@ -10,10 +10,14 @@ pub enum TileState {
     Planted,
 }
 
+#[derive(Component)]
+pub struct Position(pub Vec2);
+
 #[derive(Bundle)]
 pub struct TileBundle {
     pub state: TileState,
     pub sprite: SpriteBundle,
+    pub position: Position,
 }
 
 impl TileBundle {
@@ -27,7 +31,8 @@ impl TileBundle {
                 transform: Transform::from_xyz(x, y, 0.),
                 ..default()
             },
-            state: state
+            state: state,
+            position: Position(Vec2::new(x, y))
         }
     }
 }
@@ -38,7 +43,15 @@ fn within_circle (point_a: (i32, i32), point_b: (i32, i32), dist: f32) -> bool {
     let (a_x, a_y) = point_a;
     let (b_x, b_y) = point_b;
     
-    dist > (((a_x - b_x).abs().pow(2) as f32) + ((a_y - b_y).abs().pow(2) as f32)).sqrt()
+    dist > (((a_x - b_x).pow(2) as f32) + ((a_y - b_y).pow(2) as f32)).sqrt()
+}
+
+pub fn distance_int_from_point (point_a: (i32, i32), point_b: (i32, i32)) -> f32 {
+    let (a_x, a_y) = point_a;
+    let (b_x, b_y) = point_b;
+
+    // Return distance, clamped, as an integer
+    (((a_x - b_x).pow(2) as f32) + ((a_y - b_y).pow(2) as f32)).sqrt()
 }
 
 // Returns true if point is within rect made by bottom_left and top_right
@@ -79,7 +92,7 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     assets.load("tiles/farmtile.png"),
                     x,
                     y,
-                    TileState::Toiled
+                    TileState::Toiled   
                 ));
             }
             // Draw the "house" at the bottom of the map
@@ -114,11 +127,6 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     TileState::Untoiled
                 )); 
             }
-
-            
-
-            // Add the tile to mapArray
-            
         }
     }
 }
