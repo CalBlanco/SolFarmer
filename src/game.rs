@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
 use bevy::render::*;
 use crate::{map::{self, Position}, player, the_core};
@@ -25,9 +27,16 @@ pub fn build_plugin(app: &mut App){
     ))
     .init_resource::<MyWorldCoords>()
 
+    // Add day night cycle events
+    .add_event::<DawnStartEvent>()
+    .add_event::<DayStartEvent>()
+    .add_event::<DuskStartEvent>()
+    .add_event::<NightStartEvent>()
+
     .insert_resource(DayNightCycle::new(DAY_DURATION))
     .add_systems(Update, (
-        update_day_night_cycle
+        update_day_night_cycle,
+        handle_day_night_events
     ).run_if(in_state(AppState::Game)))
     
 
@@ -117,13 +126,47 @@ const NIGHT_LIGHT_LEVEL: f32 = 0.6;
 #[derive(Resource)]
 struct DayNightCycle {
     timer: Timer,
+    prev_time: f32,
 }
+
+#[derive(Event)]
+struct DawnStartEvent;
+
+#[derive(Event)]
+struct DayStartEvent;
+
+#[derive(Event)]
+struct DuskStartEvent;
+
+#[derive(Event)]
+struct NightStartEvent;
 
 impl DayNightCycle {
     fn new(day_duration: f32) -> Self {
         DayNightCycle {
             timer: Timer::from_seconds(day_duration, TimerMode::Repeating),
+            prev_time: 0.,
         }
+    }
+}
+
+fn handle_day_night_events(
+    mut ev_dawn: EventReader<DawnStartEvent>,
+    mut ev_day: EventReader<DayStartEvent>,
+    mut ev_dusk: EventReader<DuskStartEvent>,
+    mut ev_night: EventReader<NightStartEvent>,
+) {
+    for ev in ev_dawn.read() {
+        eprintln!("Dawn");
+    }
+    for ev in ev_day.read() {
+        eprintln!("Day");
+    }
+    for ev in ev_dusk.read() {
+        eprintln!("Dusk");
+    }
+    for ev in ev_night.read() {
+        eprintln!("Night");
     }
 }
 
@@ -131,11 +174,49 @@ fn update_day_night_cycle(
     time: Res<Time>,
     mut day_night_cycle: ResMut<DayNightCycle>,
     mut query: Query<(&mut Sprite, &Position)>,
+    mut ev_dawn: EventWriter<DawnStartEvent>,
+    mut ev_day: EventWriter<DayStartEvent>,
+    mut ev_dusk: EventWriter<DuskStartEvent>,
+    mut ev_night: EventWriter<NightStartEvent>,
 ) {
+
     day_night_cycle.timer.tick(time.delta());
 
     // Calculate the current time of day as a percentage (0.0 - 1.0)
     let time_of_day = day_night_cycle.timer.elapsed_secs() / DAY_DURATION;
+
+    let day_state = match time_of_day {
+        t if t <= 0.1 => 1, // Dawn
+        t if t <= 0.35 => 2, // Day
+        t if t <= 0.45 => 3, // Dusk
+        _ => 4, // Night
+    };
+
+    let prev_day_state = match day_night_cycle.prev_time as f32 {
+        t if t <= 0.1 => 1, // Dawn
+        t if t <= 0.35 => 2, // Day
+        t if t <= 0.45 => 3, // Dusk
+        _ => 4, // Night
+    };
+
+    // Send events if necessary
+    if day_state != prev_day_state {
+        if day_state == 1 {
+            ev_dawn.send(DawnStartEvent);
+        }
+        else if day_state == 2 {
+            ev_day.send(DayStartEvent);
+        }
+        else if day_state == 3 {
+            ev_dusk.send(DuskStartEvent);
+        }
+        else if day_state == 4 {
+            ev_night.send(NightStartEvent);
+        }
+    }
+
+    // Update previous time
+    day_night_cycle.prev_time = time_of_day;
 
     // Calculate the sun brightness
     let global_brightness_factor = match time_of_day {

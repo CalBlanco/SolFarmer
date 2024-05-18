@@ -32,15 +32,19 @@ impl CoreBundle {
 } 
 
 pub fn setup (mut commands: Commands, assets: Res<AssetServer>) {
+    // Spawn the core background
+    commands.spawn(
+        SpriteBundle {
+            texture: assets.load("images/core_background.png"),
+            transform: Transform::from_xyz(20. * 32., 2. * 32., 2.),
+            ..default()
+        }
+    );
     // Spawn the core
     commands.spawn(
         (
             CoreBundle::new(),
             SpriteBundle {
-                sprite: Sprite {
-                    color: Color::rgba(1.0, 1.0, 1.0, 1.0),
-                    ..default()
-                },
                 texture: assets.load("images/core_orb.png"),
                 transform: Transform::from_xyz(20. * 32., 2. * 32., 2.),
                 ..default()
@@ -51,10 +55,6 @@ pub fn setup (mut commands: Commands, assets: Res<AssetServer>) {
         // Core Base Image (the orb)
         parent.spawn(
             (SpriteBundle {
-                sprite: Sprite {
-                    color: Color::rgba(1.0, 1.0, 1.0, 1.0),
-                    ..default()
-                },
                 texture: assets.load("images/core_orb.png"),
                 transform: Transform::from_xyz(0., 0., 2.),
                 ..default()
@@ -64,10 +64,6 @@ pub fn setup (mut commands: Commands, assets: Res<AssetServer>) {
         // Spawn the core spin object
         parent.spawn(
             (SpriteBundle {
-                sprite: Sprite {
-                    color: Color::rgba(1.0, 1.0, 1.0, 1.0),
-                    ..default()
-                },
                 texture: assets.load("images/core_spin.png"),
                 transform: Transform::from_xyz(0., 0., 3.),
                 ..default()
@@ -79,14 +75,14 @@ pub fn setup (mut commands: Commands, assets: Res<AssetServer>) {
             SpriteBundle {
                 // Make Sprite to use alpha channel
                 sprite: Sprite {
-                    color: Color::rgba(1.0, 1.0, 1.0, 1.0),
+                    color: Color::rgba(1.0, 1.0, 1.0, 0.0),
                     ..default()
                 },
                 texture: assets.load("images/core_death.png"),
                 transform: Transform::from_xyz(0., 0., 4.),
                 ..default()
             }
-        );
+        ); 
     });
 }
 
