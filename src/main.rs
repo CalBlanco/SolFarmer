@@ -9,6 +9,8 @@ mod game;
 mod map;
 mod player;
 
+mod spriteanims;
+
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum AppState {
     #[default]
