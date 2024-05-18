@@ -156,10 +156,16 @@ fn update_day_night_cycle(
         let (x, y) = map::get_tile(x, y);
 
         let numbers = vec![
+            // Torches
             map::distance_int_from_point((7, 6), (x, y)).floor() as i32,
             map::distance_int_from_point((7, 15), (x, y)).floor() as i32,
-            map::distance_int_from_point((32, 6), (x, y)).floor() as i32,
-            map::distance_int_from_point((32, 15), (x, y)).floor() as i32,
+            map::distance_int_from_point((33, 6), (x, y)).floor() as i32,
+            map::distance_int_from_point((33, 15), (x, y)).floor() as i32,
+            // The Base Lights
+            map::distance_int_from_point((13, 3), (x, y)).floor() as i32,
+            map::distance_int_from_point((20, 3), (x, y)).floor() as i32,
+            map::distance_int_from_point((27, 3), (x, y)).floor() as i32,
+            
         ];
 
         let mut torch_light_factor = 1.;
@@ -169,8 +175,6 @@ fn update_day_night_cycle(
                 let dist = 7 - min_value;
                 torch_light_factor = 1. + (dist as f32 * (0.1) * torch_multiplier);
             }
-        } else {
-            println!("Vector is empty");
         }
         
         // Calculate total brightness factor (constain torch lights to 7 units away)

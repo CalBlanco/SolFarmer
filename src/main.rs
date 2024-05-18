@@ -1,7 +1,7 @@
 use bevy::{diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, prelude::*, window::{PresentMode, WindowTheme}};
 use bevy_hanabi::prelude::*;
 
-const RESOLUTION_X: f32 = 1280.;
+const RESOLUTION_X: f32 = 1312.;
 const RESOLUTION_Y: f32 = 704.;
 
 mod menu;
