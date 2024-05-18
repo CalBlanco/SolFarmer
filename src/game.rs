@@ -1,5 +1,5 @@
 use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
-
+use bevy::render::*;
 use crate::{map, player};
 
 use super::{AppState, RESOLUTION_X, RESOLUTION_Y};
@@ -107,6 +107,8 @@ fn my_cursor_system(
 
 // Constants for day duration (in seconds)
 const DAY_DURATION: f32 = 20.0;
+const DAY_LIGHT_LEVEL: f32 = 1.5;
+const NIGHT_LIGHT_LEVEL: f32 = 0.6;
 
 // Resource to hold the day-night cycle timer
 #[derive(Resource)]
@@ -125,28 +127,35 @@ impl DayNightCycle {
 fn update_day_night_cycle(
     time: Res<Time>,
     mut day_night_cycle: ResMut<DayNightCycle>,
+    mut query: Query<&mut Sprite>,
 ) {
     day_night_cycle.timer.tick(time.delta());
 
     // Calculate the current time of day as a percentage (0.0 - 1.0)
     let time_of_day = day_night_cycle.timer.elapsed_secs() / DAY_DURATION;
 
+    // Calculate the sun brightness
+    let global_brightness_factor = match time_of_day {
+        t if t <= 0.1 => lerp(NIGHT_LIGHT_LEVEL, DAY_LIGHT_LEVEL, t / 0.1), // Dawn
+        t if t <= 0.35 => DAY_LIGHT_LEVEL, // Day
+        t if t <= 0.45 => lerp(DAY_LIGHT_LEVEL, NIGHT_LIGHT_LEVEL, (t - 0.35) / 0.1), // Dusk
+        _ => NIGHT_LIGHT_LEVEL, // Night
+    };
 
-    // Dawn
-    if time_of_day <= 0.1 {
-        
-    }
-    // Day
-    else if time_of_day <= 0.35 {
-        
-    }
-    // Dusk
-    else if time_of_day <= 0.45 {
-        
-    }
-    // Night
-    else {
-        
+    // Calculate the brightness factor for this tile
+    let brightness_factor = global_brightness_factor * 1.0;
+
+    for mut sprite in query.iter_mut() {
+        // your color changing logic here instead:
+        sprite.color = Color::rgba(
+            1.0 * brightness_factor,
+            1.0 * brightness_factor,
+            1.0 * brightness_factor,
+            1.0, // Preserve the alpha channel
+        );
     }
 }
 
+fn lerp (a: f32, b: f32, ratio: f32) -> f32 {
+    a + ((b - a) * ratio)
+} 
