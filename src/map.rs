@@ -203,7 +203,7 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn((make_sprite_bundle("tiles/base_roof.png".to_owned(), &assets, (base_2_x + 2.) * 32.0, (base_2_y - 1.) * 32.0, 5., 0.), Position(Vec2::new(-10., -10.))));
 
     // Draw the core background
-    commands.spawn((make_sprite_bundle("images/core_background.png".to_owned(), &assets, (num_x / 2) as f32 * 32., 2. * 32., 1., 0.), Position(Vec2::new(-10., -10.))));
+    //commands.spawn((make_sprite_bundle("images/core_background.png".to_owned(), &assets, (num_x / 2) as f32 * 32., 2. * 32., 1., 0.), Position(Vec2::new(-10., -10.))));
 }
 
 
