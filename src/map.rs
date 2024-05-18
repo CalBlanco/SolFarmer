@@ -2,6 +2,36 @@ use bevy::prelude::*;
 
 use super::{RESOLUTION_X, RESOLUTION_Y};
 
+#[derive(Component)]
+pub enum TileState {
+    Immutable,
+    Untoiled,
+    Toiled,
+    Planted,
+}
+
+#[derive(Bundle)]
+pub struct TileBundle {
+    pub state: TileState,
+    pub sprite: SpriteBundle,
+}
+
+impl TileBundle {
+    pub fn new (texture: Handle<Image>, x: i32, y: i32, state: TileState) -> TileBundle {
+        // Get the tile coords
+        let (x, y) = get_world(x, y);
+        // Return the tile bundle
+        TileBundle {
+            sprite: SpriteBundle {
+                texture:texture,
+                transform: Transform::from_xyz(x, y, 0.),
+                ..default()
+            },
+            state: state
+        }
+    }
+}
+
 
 // Returns true if point_a and point_b are within a range of dist
 fn within_circle (point_a: (i32, i32), point_b: (i32, i32), dist: f32) -> bool {
@@ -27,58 +57,55 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
 
     let middle_tile = (num_x / 2, num_y / 2);
     let rock_pos_1 = (0, 0);
-    let rock_pos_2 = (0, num_y);
-    let rock_pos_3 = (num_x, 0);
-    let rock_pos_4 = (num_x, num_y);
-
-    let plot_bottom_left = (12, 7);
-    let plot_top_right = (28, 15);
+    let rock_pos_2 = (0, num_y - 1);
+    let rock_pos_3 = (num_x - 1, 0);
+    let rock_pos_4 = (num_x - 1, num_y - 1);
 
     // Load the background
     for x in 0..num_x {
         for y in 0..num_y {
-            // Draw the basic ground behind everything
-            commands.spawn(
-                SpriteBundle {
-                    texture: assets.load("tiles/redgrass.png"),
-                    transform: Transform::from_xyz((x * 32) as f32, (y * 32) as f32, -1.),
-                    ..default()
-                }
-            );
-            // Draw the "Rocks"
-            if within_circle(rock_pos_1, (x, y), 4.) || within_circle(rock_pos_2, (x, y), 4.) || within_circle(rock_pos_3, (x, y), 4.) || within_circle(rock_pos_4, (x, y), 4.) {
-                commands.spawn(
-                    SpriteBundle {
-                        texture: assets.load("tiles/wood_ruined.png"),
-                        transform: Transform::from_xyz((x * 32) as f32, (y * 32) as f32, 0.),
-                        ..default()
-                    }
-                );
+            // Draw the Corners of the map
+            if within_circle(rock_pos_1, (x, y), 5.) || within_circle(rock_pos_2, (x, y), 5.) || within_circle(rock_pos_3, (x, y), 5.) || within_circle(rock_pos_4, (x, y), 5.) {
+                commands.spawn(TileBundle::new(
+                    assets.load("tiles/wood_ruined.png"),
+                    x,
+                    y,
+                    TileState::Immutable
+                ));
             }
-            // Draw the Middle Area (Planting Zone)            
-            if within_circle(middle_tile, (x, y), 4.) {
-                commands.spawn(
-                    SpriteBundle {
-                        texture: assets.load("tiles/farmtile.png"),
-                        transform: Transform::from_xyz((x * 32) as f32, (y * 32) as f32, 0.),
-                        ..default()
-                    }
-                );
+            // Draw the Middle Area (Ready Planting Zone)            
+            else if within_circle(middle_tile, (x, y), 4.) {
+                commands.spawn(TileBundle::new(
+                    assets.load("tiles/farmtile.png"),
+                    x,
+                    y,
+                    TileState::Toiled
+                ));
             }
             // Draw the "house" at the bottom of the map
-            if within_rect((5, 0), (35, 3), (x, y)) {
-                commands.spawn(
-                    SpriteBundle {
-                        texture: assets.load("tiles/concrete.png"),
-                        transform: Transform::from_xyz((x * 32) as f32, (y * 32) as f32, 0.),
-                        ..default()
-                    }
-                );
+            else if within_rect((6, 0), (33, 3), (x, y)) {
+                commands.spawn(TileBundle::new(
+                    assets.load("tiles/concrete.png"),
+                    x,
+                    y,
+                    TileState::Immutable
+                ));
+            } 
+            // Draw the basic ground behind everything
+            else {
+                commands.spawn(TileBundle::new(
+                    assets.load("tiles/redgrass.png"),
+                    x,
+                    y,
+                    TileState::Untoiled
+                )); 
             }
+
+            // Add the tile to mapArray
+            
         }
     }
 }
-
 
 
 pub fn get_tile(x:f32, y:f32) -> (i32, i32) {
