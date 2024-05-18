@@ -28,7 +28,7 @@ pub fn build_plugin(app: &mut App){
     ).run_if(in_state(AppState::Game)))
 
     .add_systems(FixedUpdate, (
-        player::player_movement,
+        player::player_input,
         player::render_tile_highlight,
         player::hoe_swing,
 

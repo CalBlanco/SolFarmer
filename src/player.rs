@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game, map};
-
-use super::{RESOLUTION_X, RESOLUTION_Y};
+use crate::{game, map::{self, TileBundle, TileState}};
 
 #[derive(Component)]
 pub struct Player;
@@ -21,7 +19,6 @@ const ATTACK_COOLDOWN: f32 = 0.4;
 
 #[derive(Component)]
 pub struct Hoe;
-
 
 pub fn setup(mut commands: Commands, assets: Res<AssetServer>){
     let spawn = map::get_world(SPAWN_X, SPAWN_Y);
@@ -55,14 +52,15 @@ pub fn setup(mut commands: Commands, assets: Res<AssetServer>){
 }
 
 /// Move the player around 
-pub fn player_movement(
+pub fn player_input(
     mut query: Query<(Entity, &mut Transform, &mut PlayerAttack), With<Player>>,
     keycode: Res<ButtonInput<KeyCode>>,
+    mouse: Res<game::MyWorldCoords>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     time: Res<Time>
 )
 {
-    if let Ok((e, mut transform, mut player_attack)) = query.get_single_mut() {
+    if let Ok((_e, mut transform, mut player_attack)) = query.get_single_mut() {
         // Tick the attack timer
         player_attack.0.tick(time.delta());
         let move_distance = MOVE_SPEED * time.delta_seconds();
@@ -87,10 +85,12 @@ pub fn player_movement(
         }
 
         // Handle the placing/removal of the plant units
-        if mouse_input.pressed(MouseButton::Left) {
-
+        if mouse_input.just_pressed(MouseButton::Left) {
+            // Get the indices of the tile clicked on
+            let (x, y) = map::get_tile(mouse.0.x, mouse.0.y);
+            println!("{}, {}", x, y);
         }
-        if mouse_input.pressed(MouseButton::Right) {
+        if mouse_input.just_pressed(MouseButton::Right) {
             
         }
     } 
@@ -98,7 +98,7 @@ pub fn player_movement(
 
 pub fn render_tile_highlight(
     mouse: Res<game::MyWorldCoords>,
-    mut tile_highlight: Query<(&mut Transform), With<Mouse>>
+    mut tile_highlight: Query<&mut Transform, With<Mouse>>
 )
 {
     if let Ok(mut transform) = tile_highlight.get_single_mut() {
@@ -147,3 +147,4 @@ pub fn hoe_swing(
         }
     }
 }
+
