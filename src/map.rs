@@ -38,7 +38,7 @@ impl TileBundle {
 }
 
 
-// Returns true if point_a and point_b are within a range of dist
+/// Returns true if point_a and point_b are within a range of dist
 fn within_circle (point_a: (i32, i32), point_b: (i32, i32), dist: f32) -> bool {
     let (a_x, a_y) = point_a;
     let (b_x, b_y) = point_b;
@@ -54,7 +54,7 @@ pub fn distance_int_from_point (point_a: (i32, i32), point_b: (i32, i32)) -> f32
     (((a_x - b_x).pow(2) as f32) + ((a_y - b_y).pow(2) as f32)).sqrt()
 }
 
-// Returns true if point is within rect made by bottom_left and top_right
+/// Returns true if point is within rect made by bottom_left and top_right
 fn within_rect(bottom_left: (i32, i32), top_right: (i32, i32), point: (i32, i32)) -> bool {
     let (btm_x, btm_y) = bottom_left;
     let (top_x, top_y) = top_right;
