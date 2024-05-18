@@ -10,6 +10,17 @@ pub enum TileState {
     Planted,
 }
 
+impl TileState {
+    pub fn value(&self) -> String {
+        match self {
+            TileState::Immutable => String::from("Immutable"),
+            TileState::Untoiled => String::from("Untoiled"),
+            TileState::Toiled => String::from("Toiled"),
+            TileState::Planted => String::from("Planted"),
+        }
+    }
+}
+
 #[derive(Component)]
 pub struct Position(pub Vec2);
 

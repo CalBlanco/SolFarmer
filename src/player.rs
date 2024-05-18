@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use rand::Rng;
 
 use crate::{game, map::{self, TileBundle, TileState}, spriteanims};
 
@@ -20,15 +21,42 @@ const ATTACK_COOLDOWN: f32 = 0.4;
 #[derive(Component)]
 pub struct Hoe;
 
+#[derive(Component)]
+pub enum PlayerTool {
+    Tiller,
+    Planter,
+    Rake
+}
+
+
+#[derive(Bundle)]
+pub struct PlayerBundle {
+    sprite_anim: spriteanims::HumanAnimator,
+    ply:  Player,
+    attack: PlayerAttack,
+    tool: PlayerTool
+}
+
+impl PlayerBundle {
+    pub fn new(anim: spriteanims::HumanAnimator) -> PlayerBundle {
+        PlayerBundle {
+            sprite_anim: anim,
+            ply: Player,
+            attack: PlayerAttack(Timer::from_seconds(ATTACK_COOLDOWN, TimerMode::Once)),
+            tool: PlayerTool::Planter
+        }
+    }
+}   
+
+
+
 pub fn setup(mut commands: Commands, assets: Res<AssetServer>){
     let spawn = map::get_world(SPAWN_X, SPAWN_Y);
 
-    commands.spawn( (
-        spriteanims::HumanAnimator::new(
-            assets.load("entity/human_profile/ed_sheet.png"), spriteanims::HumanAnimState::FaceDown, Vec3 {x: spawn.0, y: spawn.1, z :1.0}),
-        Player,
-        PlayerAttack(Timer::from_seconds(ATTACK_COOLDOWN, TimerMode::Once))
-    )).with_children(|parent| {
+    commands.spawn( 
+        PlayerBundle::new(spriteanims::HumanAnimator::new(
+            assets.load("entity/human_profile/ed_sheet.png"), spriteanims::HumanAnimState::FaceDown, Vec3 {x: spawn.0, y: spawn.1, z :1.0}))
+    ).with_children(|parent| {
         parent.spawn((SpriteBundle {
             texture: assets.load("images/hoe1.png"),
             transform: Transform::from_xyz(-8., 8., 5.),
@@ -50,34 +78,46 @@ pub fn setup(mut commands: Commands, assets: Res<AssetServer>){
 
 /// Move the player around 
 pub fn player_input(
-    mut query: Query<(Entity, &mut Transform, &mut PlayerAttack, &mut Sprite, &mut spriteanims::HumanAnimState), With<Player>>,
+    mut query: Query<(Entity, &mut Transform, &mut PlayerAttack, &mut Sprite, &mut spriteanims::HumanAnimState, &mut PlayerTool), With<Player>>,
     keycode: Res<ButtonInput<KeyCode>>,
     mouse: Res<game::MyWorldCoords>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     time: Res<Time>
 )
 {
-    if let Ok((_e, mut transform, mut player_attack, mut sprite, mut state )) = query.get_single_mut() {
+    if let Ok((_e, mut transform, mut player_attack, mut sprite, mut state, mut tool )) = query.get_single_mut() {
         // Tick the attack timer
         player_attack.0.tick(time.delta());
         let move_distance = MOVE_SPEED * time.delta_seconds();
+        sprite.rect = Some(state.getRect());
 
         if keycode.pressed(KeyCode::KeyW) {
-            sprite.rect = Some(spriteanims::HumanAnimState::FaceUp.getRect());
             
+            *state = spriteanims::HumanAnimState::FaceUp;
             transform.translation.y += move_distance;
         }
         if keycode.pressed(KeyCode::KeyS) {
-            sprite.rect = Some(spriteanims::HumanAnimState::FaceDown.getRect());
+            *state = spriteanims::HumanAnimState::FaceDown;
             transform.translation.y -= move_distance;
         }
         if keycode.pressed(KeyCode::KeyD) {
-            sprite.rect = Some(spriteanims::HumanAnimState::FaceRight.getRect());
+            *state = spriteanims::HumanAnimState::FaceRight;
             transform.translation.x += move_distance;
         }
         if keycode.pressed(KeyCode::KeyA) {
-            sprite.rect = Some(spriteanims::HumanAnimState::FaceLeft.getRect());
+            *state = spriteanims::HumanAnimState::FaceLeft;
             transform.translation.x -= move_distance;
+        }
+
+
+        if keycode.just_pressed(KeyCode::Digit1){
+            *tool = PlayerTool::Tiller;
+        }
+        if keycode.just_pressed(KeyCode::Digit2){
+            *tool = PlayerTool::Planter;
+        }
+        if keycode.just_pressed(KeyCode::Digit3){
+            *tool = PlayerTool::Rake;
         }
 
         // If the player can attack and is trying to attack
@@ -148,4 +188,74 @@ pub fn hoe_swing(
             }
         }
     }
+}
+
+/// Control tile placement
+pub fn mouse_tile_select(
+    tile_query: Query<(Entity, &mut map::TileState, &map::Position, &mut Sprite)>,
+    player_query: Query<&PlayerTool, With<Player>>,
+    mouse: Res<game::MyWorldCoords>,
+    mouse_input: Res<ButtonInput<MouseButton>>,
+    assets: Res<AssetServer>,
+    mut commands: Commands
+){
+    let Ok((tool)) = player_query.get_single() else {warn!("No tool"); return;};
+    if mouse_input.just_pressed(MouseButton::Left) {
+       // println!("Clicked Something {}", tile_query.iter().len());
+        let mouse_tile = map::get_tile(mouse.0.x, mouse.0.y);
+        for (e, s, p, _) in &tile_query{
+            let tile_tile = map::get_tile(p.0.x, p.0.y);
+            
+            if mouse_tile == tile_tile {
+               // println!("Clicked Tile: ({},{}) has tile state: {}", mouse_tile.0, mouse_tile.1, s.value());
+                match tool {
+                    PlayerTool::Planter => {
+                        match *s {
+                            map::TileState::Toiled => {
+                                commands.entity(e).despawn();
+                                let rng = rand::thread_rng().gen_range(0..3);
+                                let str = match rng {
+                                    0 => String::from("tiles/farmtile_seeds_green.png"),
+                                    1 => String::from("tiles/farmtile_seeds_pink.png"),
+                                    _ => String::from("tiles/farmtile_seeds_yellow.png"),
+                                };
+                                commands.spawn(
+                                    map::TileBundle::new(assets.load(str), tile_tile.0, tile_tile.1, map::TileState::Planted)
+                                );
+                            },
+                            _ => {}
+                        }
+                    },
+                    PlayerTool::Tiller => {
+                        match *s {
+                            map::TileState::Untoiled => {
+                                commands.entity(e).despawn();
+                                
+                                commands.spawn(
+                                    map::TileBundle::new(assets.load("tiles/farmtile.png"), tile_tile.0, tile_tile.1, map::TileState::Toiled)
+                                );
+                            },
+                            _ => {}
+                        }
+                    },
+                    PlayerTool::Rake => {
+                        match *s {
+                            map::TileState::Immutable => {
+                                
+                            },
+                            _ => {
+                                commands.entity(e).despawn();
+                                
+                                commands.spawn(
+                                    map::TileBundle::new(assets.load("tiles/redgrass.png"), tile_tile.0, tile_tile.1, map::TileState::Untoiled)
+                                );
+                            }
+                        }
+                    },
+                }
+                
+            }
+        }
+    }
+    
 }
