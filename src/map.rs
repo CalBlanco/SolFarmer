@@ -77,6 +77,7 @@ fn within_rect(bottom_left: (i32, i32), top_right: (i32, i32), point: (i32, i32)
 
 pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
     let num_x = (RESOLUTION_X / 32.) as i32;
+    println!("{}", num_x);
     let num_y = (RESOLUTION_Y / 32.) as i32;
 
     let middle_tile = (num_x / 2, num_y / 2);
@@ -107,7 +108,7 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                 ));
             }
             // Draw the "house" at the bottom of the map
-            else if within_rect((6, 0), (33, 3), (x, y)) {
+            else if within_rect((6, 0), (34, 3), (x, y)) {
                 commands.spawn(TileBundle::new(
                     assets.load("tiles/concrete.png"),
                     x,
@@ -116,7 +117,7 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                 ));
             } 
             // Place Torches on Concrete tiles
-            else if (x == 7 || x == 32) && (y == 6 || y == 15) {
+            else if (x == 7 || x == 33) && (y == 6 || y == 15) {
                 commands.spawn(TileBundle::new(
                     assets.load("tiles/concrete.png"),
                     x,
@@ -138,6 +139,19 @@ pub fn draw_background (mut commands: Commands, assets: Res<AssetServer>) {
                     TileState::Untoiled
                 )); 
             }
+
+            // Draw the Base
+            commands.spawn( SpriteBundle {
+                texture: assets.load("images/basev1.png"),
+                transform: Transform::from_xyz(13. * 32.0, 1. * 32.0, 5.).with_scale(Vec3::new(4., 4., 4.)),
+                ..default()
+            });
+
+            commands.spawn( SpriteBundle {
+                texture: assets.load("images/basev1.png"),
+                transform: Transform::from_xyz(27. * 32.0, 1. * 32.0, 5.).with_scale(Vec3::new(4., 4., 4.)),
+                ..default()
+            });
         }
     }
 }
