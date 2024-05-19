@@ -1,23 +1,15 @@
 # SolFarmer (Plant Roguelike)
 - [ ] Menus
 	- [ ] Splash/Main Menu
-		- [ ] Tutorial Text
 		- [x] Play Game Button
 		- [x] Quit Game Button
-		- [ ] Toggle SFX/Music
-		- Stats
-			- (days, money earned, zambies killed, plants placed, plants list)
-	- [ ] Pause Menu
-		- [ ] Esc to Open/Close
-		- [ ] Return to Game button
-		- [ ] Back to Main Menu
-		- [ ] Tutorial
+		- [ ] Background
 	- [ ] HUD
-		- [ ] Click Pause Button
 		- [ ] Unit/tool selection
 		- [ ] Core Health
 		- [ ] Day Counter
 		- [ ] Resource counter
+		- [ ] Toggle SFX/Music
 - [ ] Gameplay Loop
 	- [ ] Collect resources (1 resource, something)
 		- [ ] Plants generate
@@ -41,7 +33,7 @@
 	- [ ] Unit Choice
 		- Cost
 		- Purpose
-			- Damage
+			- Damage (ranged)
 			- "Melee" damage
 			- Resource Gen
 			- Walls(?), Cost a decent chunk of change
@@ -78,11 +70,9 @@ Menus
 - [x] Fonts
 - [x] Button
 - [ ] Toggle on/off
-- [ ] Logo
+- [x] Logo
 - [ ] Menu Background
-- [ ] Music
+- [x] Music
 	- Day Track
 	- Night Track
 - [ ] 2 button SFX
-General
-- [ ] Application Icon
