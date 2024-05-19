@@ -1,5 +1,6 @@
 use bevy::{diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, prelude::*, window::{PresentMode, WindowTheme}};
 use bevy_hanabi::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl, AudioPlugin, AudioSource};
 
 const RESOLUTION_X: f32 = 1312.;
 const RESOLUTION_Y: f32 = 704.;
@@ -9,6 +10,7 @@ mod game;
 mod map;
 mod player;
 mod the_core;
+mod music_player;
 
 mod spriteanims;
 
@@ -48,6 +50,7 @@ fn main() {
             //FrameTimeDiagnosticsPlugin,
         ))
         .add_plugins(HanabiPlugin) // Particle Effect System
+        .add_plugins(AudioPlugin)
         .add_plugins(menu::build_plugin)
         .add_plugins(game::build_plugin)
         .init_state::<AppState>()

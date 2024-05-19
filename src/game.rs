@@ -1,8 +1,8 @@
 use std::time::Duration;
 
-use bevy::{core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
+use bevy::{audio::AudioPlugin, core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping}, ecs::query, prelude::*, window::PrimaryWindow};
 use bevy::render::*;
-use crate::{map::{self, Position}, player, the_core};
+use crate::{map::{self, Position}, player, the_core, music_player};
 
 use super::{AppState, RESOLUTION_X, RESOLUTION_Y};
 
@@ -27,6 +27,16 @@ pub fn build_plugin(app: &mut App){
     ))
     .init_resource::<MyWorldCoords>()
 
+    // Setup music handler
+    .add_systems(Update, (
+        music_player::instance_control
+    ).run_if(in_state(AppState::Game)))
+
+    .add_systems(Startup, (
+        music_player::start_day_music,
+        music_player::start_night_music
+    ))
+
     // Add day night cycle events
     .add_event::<DawnStartEvent>()
     .add_event::<DayStartEvent>()
@@ -36,10 +46,9 @@ pub fn build_plugin(app: &mut App){
     .insert_resource(DayNightCycle::new(DAY_DURATION))
     .add_systems(Update, (
         update_day_night_cycle,
-        handle_day_night_events
+        handle_day_night_events,
     ).run_if(in_state(AppState::Game)))
     
-
     .add_systems(Update, (
         my_cursor_system
     ).run_if(in_state(AppState::Game)))
@@ -50,7 +59,7 @@ pub fn build_plugin(app: &mut App){
         player::hoe_swing,
         player::mouse_tile_select,
         player::react_to_mouse_event,
-        the_core::core_update
+        the_core::core_update,
 
     ).run_if(in_state(AppState::Game)))
     
@@ -118,28 +127,28 @@ fn my_cursor_system(
 }
 
 // Constants for day duration (in seconds)
-const DAY_DURATION: f32 = 20.0;
+pub const DAY_DURATION: f32 = 60.0;
 const DAY_LIGHT_LEVEL: f32 = 1.5;
 const NIGHT_LIGHT_LEVEL: f32 = 0.6;
 
 // Resource to hold the day-night cycle timer
 #[derive(Resource)]
-struct DayNightCycle {
-    timer: Timer,
+pub struct DayNightCycle {
+    pub timer: Timer,
     prev_time: f32,
 }
 
 #[derive(Event)]
-struct DawnStartEvent;
+pub struct DawnStartEvent;
 
 #[derive(Event)]
-struct DayStartEvent;
+pub struct DayStartEvent;
 
 #[derive(Event)]
-struct DuskStartEvent;
+pub struct DuskStartEvent;
 
 #[derive(Event)]
-struct NightStartEvent;
+pub struct NightStartEvent;
 
 impl DayNightCycle {
     fn new(day_duration: f32) -> Self {
@@ -156,16 +165,16 @@ fn handle_day_night_events(
     mut ev_dusk: EventReader<DuskStartEvent>,
     mut ev_night: EventReader<NightStartEvent>,
 ) {
-    for ev in ev_dawn.read() {
+    for _ev in ev_dawn.read() {
         eprintln!("Dawn");
     }
-    for ev in ev_day.read() {
+    for _ev in ev_day.read() {
         eprintln!("Day");
     }
-    for ev in ev_dusk.read() {
+    for _ev in ev_dusk.read() {
         eprintln!("Dusk");
     }
-    for ev in ev_night.read() {
+    for _ev in ev_night.read() {
         eprintln!("Night");
     }
 }
